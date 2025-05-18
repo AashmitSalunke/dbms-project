@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Trade History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <h2>Trade History</h2>
+    <a href="/dashboard">← Back to Dashboard</a>
+
+    <table>
+        <tr>
+            <th>Crypto</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Counterparty</th>
+            <th>Date</th>
+        </tr>
+        {% for trade in trades %}
+        <tr>
+            <td>{{ trade.crypto_name }}</td>
+            <td>{{ trade.trade_type }}</td>
+            <td>{{ trade.quantity }}</td>
+            <td>${{ trade.price_per_coin }}</td>
+            <td>{{ trade.counterparty }}</td>
+            <td>{{ trade.trade_date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>

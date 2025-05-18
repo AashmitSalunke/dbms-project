@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>New Trade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        let prices = {};
+
+        async function loadPrices() {
+            try {
+                const res = await fetch('/api/prices');
+                prices = await res.json();
+                updateTotal(); // update on initial load
+            } catch (error) {
+                alert('Failed to load real-time prices.');
+            }
+        }
+
+        function updateTotal() {
+            const crypto = document.getElementById('crypto').value;
+            const qty = parseFloat(document.getElementById('quantity').value) || 0;
+            const pricePerCoin = prices[crypto] || 0;
+            const total = qty * pricePerCoin;
+            document.getElementById('calculated-price').innerText = `Total: $${total.toFixed(2)}`;
+        }
+
+        function confirmTrade(event) {
+            event.preventDefault();
+            const form = event.target.form;
+            const crypto = form.crypto.value;
+            const qty = parseFloat(form.quantity.value);
+            const price = prices[crypto] || 0;
+            const total = (qty * price).toFixed(2);
+
+            if (!price) {
+                alert('Live price could not be fetched. Try again later.');
+                return;
+            }
+
+            if (confirm(`You are about to ${form.type.value.toUpperCase()} ${qty} ${crypto.toUpperCase()} for $${total}. Proceed?`)) {
+                form.submit();
+            }
+        }
+
+        window.onload = loadPrices;
+    </script>
+</head>
+
+<body>
+    <h2>New Trade</h2>
+    <form method="POST">
+        <label for="crypto">Cryptocurrency:</label>
+        <select name="crypto" id="crypto" onchange="updateTotal()">
+            <option value="bitcoin">Bitcoin</option>
+            <option value="ethereum">Ethereum</option>
+            <option value="solana">Solana</option>
+            <option value="dogecoin">Dogecoin</option>
+        </select>
+
+        <label for="type">Trade Type:</label>
+        <select name="type" id="type">
+            <option value="buy">Buy</option>
+            <option value="sell">Sell</option>
+        </select>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" step="any" name="quantity" id="quantity" required oninput="updateTotal()">
+
+        <p id="calculated-price">Total: $0.00</p>
+
+        <label for="counterparty">Buyer/Seller:</label>
+        <input type="text" name="counterparty" required>
+
+        <button onclick="confirmTrade(event)">Submit Trade</button>
+    </form>
+
+    <a href="/dashboard">← Back to Dashboard</a>
+</body>
+
+</html>
